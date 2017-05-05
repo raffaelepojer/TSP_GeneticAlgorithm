@@ -271,6 +271,81 @@ public class Population extends PApplet{
     }
 
     /**
+     * Brute force test, lexicographic Order
+     * Doesn't work very well (best travelled is not saved??) TODO
+     */
+    public void bruteForce() {
+        //Erase population
+        if (generations <= 0) {
+            popNum = 1;
+            population = new Traveller[1];
+            population[0] = new Traveller(myCity, p);
+            for (int i = 0; i < population[0].getDna().genes.length; i++) {
+                population[0].getDna().genes[i] = i;
+            }
+            bestDistanceTraveller = population[0];
+            this.bestDistance = MAX_FLOAT;
+        }
+
+        int largestI = -1;
+
+        for (int i = 0; i < population[0].getDna().genes.length-1; i++) {
+            if (population[0].getDna().genes[i] < population[0].getDna().genes[i+1]) {
+                largestI = i;
+            }
+        }
+        if (largestI == -1) {
+            p.noLoop();
+            System.out.println("Finish");
+        } else {
+
+            int largestJ = -1;
+            for (int j = 0; j < population[0].getDna().genes.length; j++) {
+                if (population[0].getDna().genes[largestI] < population[0].getDna().genes[j]) {
+                    largestJ = j;
+                }
+            }
+
+            population[0].getDna().genes = swap(population[0].getDna().genes, largestI, largestJ);
+
+            int[] endArray = splice(population[0].getDna().genes, largestI + 1);
+            population[0].getDna().genes = splice2(population[0].getDna().genes, largestI + 1);
+            endArray = p.reverse(endArray);
+            population[0].getDna().genes = p.concat(population[0].getDna().genes, endArray);
+        }
+        generations++;
+    }
+
+    // Function for brute force
+
+    private int[] splice2(int[]a, int n) {
+        int[] b = a.clone();
+        a = new int[n];
+        for (int i = 0; i < n; i++) {
+            a[i] = b[i];
+        }
+        return a;
+    }
+
+    private int[] splice(int[]a, int n) {
+        int[] newA = new int[a.length-n];
+        for (int i = 0; i < newA.length; i++) {
+            newA[i] = a[n];
+            n++;
+        }
+        return newA;
+    }
+
+    private int[] swap(int[] a, int i,int j) {
+        int temp = a[i];
+        a[i] = a[j];
+        a[j] = temp;
+        return a;
+    }
+
+    // ****************
+
+    /**
      * Initialises the population
      */
     public void startP() {
@@ -403,5 +478,13 @@ public class Population extends PApplet{
 
     public float getCurrentBestDistance() {
         return currentBestDistance;
+    }
+
+    public int getPopNum() {
+        return popNum;
+    }
+
+    public float getMutationRate() {
+        return mutationRate;
     }
 }
